@@ -189,13 +189,21 @@ if st.sidebar.button("🔍 Predict Machine Status"):
 # ---------------------------------
 # MODEL INFO
 # ---------------------------------
+# ---------------------------------
+# MODEL INFO
+# ---------------------------------
+
 st.markdown("---")
 st.subheader("📊 Model Information")
-st.write("• Algorithm: **Random Forest Classifier**")
-st.write(f"• Model Accuracy: **{model_accuracy:.2f}%**")
-st.write("• Target Classes:")
-st.code(dict(enumerate(le_target.classes_)))
 
+st.write("• Algorithm: Random Forest Classifier")
+
+st.write(f"• Model Accuracy: {model_accuracy:.2f}%")
+
+st.write("• Target Classes:")
+
+for target in le_target.classes_:
+    st.write(f"  - {target}")
 # ---------------------------------
 # FOOTER
 # ---------------------------------
