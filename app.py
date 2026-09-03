@@ -194,61 +194,49 @@ model_accuracy = accuracy_score(
 
 
 # =================================
-# SIDEBAR
+# SIDEBAR INPUT
 # =================================
 
 st.sidebar.header("🔧 Input Parameters")
 
 user_input = {}
 
-
 for col in X.columns:
 
-
     # -----------------------------
-    # CATEGORICAL COLUMN
+    # CATEGORICAL DATA
     # -----------------------------
 
     if col in encoders:
 
-        option = st.sidebar.selectbox(
+        options = list(encoders[col].classes_)
 
-            col,
-
-            encoders[col].classes_
+        selected_value = st.sidebar.selectbox(
+            label=col,
+            options=options
         )
 
-        user_input[col] = encoders[col].transform(
-            [option]
+        encoded_value = encoders[col].transform(
+            [selected_value]
         )[0]
+
+        user_input[col] = encoded_value
 
 
     # -----------------------------
-    # NUMERIC COLUMN
+    # NUMERIC DATA
     # -----------------------------
 
     else:
 
-        min_val = float(
-            X[col].min()
-        )
-
-        max_val = float(
-            X[col].max()
-        )
-
-        mean_val = float(
-            X[col].mean()
-        )
+        min_val = float(X[col].min())
+        max_val = float(X[col].max())
+        mean_val = float(X[col].mean())
 
         user_input[col] = st.sidebar.number_input(
-
-            col,
-
+            label=col,
             min_value=min_val,
-
             max_value=max_val,
-
             value=mean_val
         )
 
@@ -263,25 +251,18 @@ input_df = pd.DataFrame(
 
 
 # ---------------------------------
-# PREDICTION BUTTON
+# PREDICTION
 # ---------------------------------
 
-if st.sidebar.button(
-    "🔍 Predict Machine Status"
-):
+if st.sidebar.button("🔍 Predict Machine Status"):
 
-    prediction = model.predict(
-        input_df
-    )
+    prediction = model.predict(input_df)
 
-    probability = model.predict_proba(
-        input_df
-    ).max()
+    probabilities = model.predict_proba(input_df)
 
+    probability = probabilities.max()
 
-    predicted_label = le_target.inverse_transform(
-        prediction
-    )[0]
+    predicted_label = le_target.inverse_transform(prediction)[0]
 
 
     col1, col2 = st.columns(2)
@@ -290,21 +271,12 @@ if st.sidebar.button(
     with col1:
 
         st.markdown(
-
             f"""
-            <div class='kpi-box'>
-
-                <div>
-                    Predicted Status
-                </div>
-
-                <div class='kpi-value'>
-                    {predicted_label}
-                </div>
-
+            <div class="kpi-box">
+                <div>Predicted Status</div>
+                <div class="kpi-value">{predicted_label}</div>
             </div>
             """,
-
             unsafe_allow_html=True
         )
 
@@ -312,23 +284,16 @@ if st.sidebar.button(
     with col2:
 
         st.markdown(
-
             f"""
-            <div class='kpi-box'>
-
-                <div>
-                    Prediction Confidence
-                </div>
-
-                <div class='kpi-value'>
+            <div class="kpi-box">
+                <div>Prediction Confidence</div>
+                <div class="kpi-value">
                     {probability * 100:.2f}%
                 </div>
-
             </div>
             """,
-
             unsafe_allow_html=True
-        )
+        ))
 
 
     st.markdown("---")
