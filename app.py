@@ -56,24 +56,49 @@ X = df.iloc[:, :-1]
 y = df.iloc[:, -1]
 
 # ---------------------------------
-# ENCODING
+# ENCODIN
 # ---------------------------------
+
+X = X.copy()
+
 encoders = {}
+
 for col in X.columns:
+
+    # Categorical/Text columns
     if X[col].dtype == "object":
+
         le = LabelEncoder()
+
+        X[col] = X[col].astype(str)
+
         X[col] = le.fit_transform(X[col])
+
         encoders[col] = le
 
-le_target = LabelEncoder()
-y = le_target.fit_transform(y)
+    # Numeric columns
+    else:
+
+        X[col] = pd.to_numeric(X[col], errors="coerce")
+
+X = X.fillna(X.median(numeric_only=True))
 
 # ---------------------------------
 # TRAIN–TEST SPLIT
 # ---------------------------------
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
 )
+
+model = RandomForestClassifier(
+    n_estimators=150,
+    random_state=42
+)
+
+model.fit(X_train, y_train)
 
 # ---------------------------------
 # MODEL
