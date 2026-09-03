@@ -115,22 +115,45 @@ model_accuracy = accuracy_score(y_test, y_pred) * 100
 # ---------------------------------
 # SIDEBAR INPUT
 # ---------------------------------
+
 st.sidebar.header("🔧 Input Parameters")
+
 user_input = {}
 
-for col in df.columns[:-1]:
+for col in X.columns:
+
+    # Agar categorical/text column hai
     if col in encoders:
-        option = st.sidebar.selectbox(col, encoders[col].classes_)
-        user_input[col] = encoders[col].transform([option])[0]
-    else:
-        user_input[col] = st.sidebar.number_input(
+
+        option = st.sidebar.selectbox(
             col,
-            float(df[col].min()),
-            float(df[col].max()),
-            float(df[col].mean())
+            encoders[col].classes_
         )
 
-input_df = pd.DataFrame([user_input])
+        user_input[col] = encoders[col].transform([option])[0]
+
+    # Agar numeric column hai
+    elif pd.api.types.is_numeric_dtype(df[col]):
+
+        min_val = float(df[col].min())
+        max_val = float(df[col].max())
+        mean_val = float(df[col].mean())
+
+        user_input[col] = st.sidebar.number_input(
+            col,
+            min_value=min_val,
+            max_value=max_val,
+            value=mean_val
+        )
+
+    # Agar koi Date / Time / other datatype hai
+    else:
+
+        st.sidebar.warning(
+            f"{col} is not a supported numeric input."
+        )
+
+        user_input[col] = 0
 
 # ---------------------------------
 # PREDICTION
