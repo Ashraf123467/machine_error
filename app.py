@@ -293,7 +293,7 @@ if st.sidebar.button("🔍 Predict Machine Status"):
             </div>
             """,
             unsafe_allow_html=True
-        ))
+        )
 
 
     st.markdown("---")
