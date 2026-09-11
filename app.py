@@ -104,16 +104,12 @@ encoders = {}
 
 for col in X.columns:
 
-    # Categorical columns
-    if (
-        X[col].dtype == "object"
-        or str(X[col].dtype) == "category"
-    ):
-
-        le = LabelEncoder()
+    # Treat non-numeric columns as categorical
+    if not pd.api.types.is_numeric_dtype(X[col]):
 
         X[col] = X[col].astype(str)
 
+        le = LabelEncoder()
         X[col] = le.fit_transform(X[col])
 
         encoders[col] = le
@@ -201,43 +197,26 @@ st.sidebar.header("🔧 Input Parameters")
 
 user_input = {}
 
-for col in X.columns:
-
-    # -----------------------------
-    # CATEGORICAL DATA
-    # -----------------------------
+for col in df.columns[:-1]:
 
     if col in encoders:
 
         options = list(encoders[col].classes_)
 
-        selected_value = st.sidebar.selectbox(
-            label=col,
-            options=options
+        option = st.sidebar.selectbox(
+            col.replace("_", " ").title(),
+            options
         )
 
-        encoded_value = encoders[col].transform(
-            [selected_value]
-        )[0]
-
-        user_input[col] = encoded_value
-
-
-    # -----------------------------
-    # NUMERIC DATA
-    # -----------------------------
+        user_input[col] = encoders[col].transform([option])[0]
 
     else:
 
-        min_val = float(X[col].min())
-        max_val = float(X[col].max())
-        mean_val = float(X[col].mean())
-
         user_input[col] = st.sidebar.number_input(
-            label=col,
-            min_value=min_val,
-            max_value=max_val,
-            value=mean_val
+            col.replace("_", " ").title(),
+            min_value=float(df[col].min()),
+            max_value=float(df[col].max()),
+            value=float(df[col].median())
         )
 
 
